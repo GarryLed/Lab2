@@ -66,6 +66,7 @@ store
    
 # CODE: 
 */using System.Globalization;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Q5
 {
@@ -112,6 +113,8 @@ namespace Q5
             }
             
 
+            WriteStudentReportToFile(studentName, studentNumber, subjects, subjectLevels, grades);
+
             // display tabular report 
             DisplayResults(studentName, studentNumber, subjects, subjectLevels, grades);
 
@@ -140,6 +143,36 @@ namespace Q5
         }
 
         // write to a file method 
+        static void WriteStudentReportToFile(string name, string num, string[] subjects, string[] levels, string[] grades)
+        {
+            FileStream fs = new FileStream("studentResults.txt", FileMode.Create, FileAccess.Write); // create a new txt file called results and use wirte access
+            
+            // create a streamwriter object and pass in path 
+            StreamWriter writer = new StreamWriter(fs);
+
+            //string[] tests = { "Test" }; // contents to be written to txt file 
+            /*
+            foreach (string test in tests) // loop through array and write to file 
+            {
+                writer.WriteLine(test);
+            }*/
+            // write data to file 
+            writer.WriteLine($"Student name: {name}");
+            writer.WriteLine($"Student ID: {num}");
+
+            for (int i = 0; i < MaxSubjects; i++) 
+            {
+                writer.WriteLine($"{subjects[i]} {levels[i]}  {grades[i]}"); ;
+            }
+
+            writer.Close(); // close the stream 
+
+
+
+            
+
+            
+        }
 
 
         //display report method 
