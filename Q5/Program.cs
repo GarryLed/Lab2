@@ -30,13 +30,6 @@ Assume 7 subjects.
      store higher and orginary level grades for calculations 
  
     Clarifying Questions: 
-     - should I validate input? 
-      - yes 
-      - strings: 
-        - non empty 
-
-     - Student number must be valid, eg S1234 is valid (shortened for ease of use) 
-          - must begin with an s followed by 4 digits 
 
      - how will I store subjects? 
         - an array and I will use the index positions to indicate 
@@ -55,31 +48,29 @@ Assume 7 subjects.
       - yes 
 
      - how do I create a tabulated report? 
+       - use string formatting 
 
      - should I create a new file for this question?
        - yes because it will overwrite the existing data in a file 
      - how can I write to a file?
         - StreamWriter 
 
-# METHODS: 
-store 
-   
 # CODE: 
-*/using System.Globalization;
+*/
+using System.Globalization;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Q5
 {
     internal class Program
     {
-            // Declare a constant for max number of subjects 
-            const int MaxSubjects = 2;
+        // Declare a constant for max number of subjects 
+        const int MaxSubjects = 2;
         static void Main(string[] args)
         {
 
             // declare variables 
             string studentName, studentNumber, subject, level, grade;
-
 
             // arrays for storing user data 
             string[] subjects = new string[MaxSubjects];
@@ -87,14 +78,14 @@ namespace Q5
             string[] grades = new string[MaxSubjects];
 
 
-                // get user input 
-                Console.Write(">> Enter your name : ");
-                studentName = Console.ReadLine();
-                Console.Write(">> Enter your student number : ");
-                studentNumber = Console.ReadLine();
+            // get user input 
+            Console.Write(">> Enter your name : ");
+            studentName = Console.ReadLine();
+            Console.Write(">> Enter your student number : ");
+            studentNumber = Console.ReadLine();
 
             // main loop 
-            for(int i = 0; i < MaxSubjects; i++) 
+            for(int i = 0; i < MaxSubjects; i++) // iterates 7 times 
             {
                 // get more user input 
                 Console.Write($">> Enter subject number {i+ 1} : ");
@@ -112,66 +103,80 @@ namespace Q5
                 grades[i] = grade;
             }
             
-
-            WriteStudentReportToFile(studentName, studentNumber, subjects, subjectLevels, grades);
-
             // display tabular report 
             DisplayResults(studentName, studentNumber, subjects, subjectLevels, grades);
 
-
+            // write data to a file 
+            WriteStudentReportToFile(studentName, studentNumber, subjects, subjectLevels, grades);
 
         } // end of main method 
         // Methods 
         // calculate total grade points 
-        static int CalculateGrade(string[] grades)
+       
+        static int CalculateTotalPoints(string[] grades, string[] levels)
         {
-            int total = 0;
-            // loop throgh grades array 
-            // convert each element to an int and add to total 
-            for (int i = 0; i < grades.Length; i++)
+            // Arrays to store existing data 
+            int[] boundaries = { 90, 80, 70, 60, 50, 40, 30, 0 };
+            int[] higherLevelPoints = { 100, 88, 77, 66, 56, 46, 37, 0 };
+            int[] ordinaryLevelPoints = {56, 46, 37, 28, 20, 12, 0, 0 };
+
+            // declare variables 
+            int totalPoints = 0;
+            int points = 0;
+
+            for (int i = 0; i < grades.Length; i++) // loop through grades array 
             {
-                if (int.TryParse(grades[i], out int gradePoint)) // input validation 
-                {
-                    total += gradePoint; // accumulate total points 
-                }
-                else 
-                { 
-                    Console.WriteLine($"{gradePoint} is not a valid input");  // display error message (do I need this here? or was input validation done in the main loop? 
-                }
+                int.TryParse(grades[i], out points); // validate input and convert valid input to an int
+                
+                    // loop through boundaries array 
+                    for (int j = 0; j < boundaries.Length; j++)
+                    {
+                        if (points >= boundaries[j]) 
+                        {
+                            if (levels[i].ToLower().Equals("h")) // (nested if statement) if the current element is equal to 'h' then points are higher level, else ordinary level  
+                            {
+                                points = higherLevelPoints[j];
+                                totalPoints += points;
+                                break; // break out of loop after block is executed 
+                            }
+                            else // ordinary level 
+                            {
+                                points = ordinaryLevelPoints[j];
+                                totalPoints += points;
+                                break;
+                            }
+                        }
+                    }
             }
-            return total;
+            return totalPoints;
         }
 
         // write to a file method 
         static void WriteStudentReportToFile(string name, string num, string[] subjects, string[] levels, string[] grades)
         {
+            int totalPoints = CalculateTotalPoints(grades, levels);
+
             FileStream fs = new FileStream("studentResults.txt", FileMode.Create, FileAccess.Write); // create a new txt file called results and use wirte access
             
             // create a streamwriter object and pass in path 
             StreamWriter writer = new StreamWriter(fs);
 
-            //string[] tests = { "Test" }; // contents to be written to txt file 
-            /*
-            foreach (string test in tests) // loop through array and write to file 
-            {
-                writer.WriteLine(test);
-            }*/
             // write data to file 
             writer.WriteLine($"Student name: {name}");
             writer.WriteLine($"Student ID: {num}");
+            writer.WriteLine($"{"Subjects",-10}{"Level",-10}{"Points",-10}");
 
             for (int i = 0; i < MaxSubjects; i++) 
             {
-                writer.WriteLine($"{subjects[i]} {levels[i]}  {grades[i]}"); ;
+                writer.WriteLine($"{subjects[i], -10} {levels[i], -10}  {grades[i],-10}"); // write data to file 
             }
 
-            writer.Close(); // close the stream 
+            writer.WriteLine($"\nTotal Points: {totalPoints}"); // write total point 
 
+            writer.Close(); // close the stream
 
-
-            
-
-            
+            // display success message 
+            Console.WriteLine("\nData has been successfully written to the file ");
         }
 
 
@@ -179,20 +184,20 @@ namespace Q5
         static void DisplayResults(string name, string num, string[] subjects, string[] levels, string[] grades)
         {
             // calculate total grade points 
-            int totalPoints = CalculateGrade(grades);
+            int totalPoints = CalculateTotalPoints(grades, levels);
 
+            // display resuls to console 
             Console.WriteLine($"Name: {name}");
             Console.WriteLine($"Student Id: {num}");
-            //Console.WriteLine("Subject     Level     grade");
+            Console.WriteLine($"{"Subjects",-10}{"Level",-10}{"Points",-10}");
 
             for (int i = 0; i < MaxSubjects ; i++) 
             {
-                Console.WriteLine($"{subjects[i]} {levels[i]}  {grades[i]}");
+                Console.WriteLine($"{subjects[i], -10} {levels[i], -10}  {grades[i],-10}");
             }
             
             // display total points 
-            Console.WriteLine($"Total Points: {totalPoints}");
-        }
-        
+            Console.WriteLine($"\nTotal Points: {totalPoints}");
+        }      
     }
 }

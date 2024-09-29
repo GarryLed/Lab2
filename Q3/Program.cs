@@ -88,46 +88,31 @@ namespace Q3
         } // end of main 
 
         // Methods 
-        /// <summary>
-        /// Calculate total points method 
-        /// method taakes one argument (parameter), an input string array 
-        /// validates user input using the TryParse method and will output an error message 
-        /// if any element is not valid 
-        /// calculates running total of points bases on the logic in the if statement
-        /// </summary>
-        /// <param name="grades"></param>
-        /// <returns>an integer (total accumulated points)</returns>
+        // calculate total points method 
         static int CalculateTotalPoints(string[] grades)
         {
-
             // Arrays to store data 
             int[] boundaries = { 90, 80, 70, 60, 50, 40, 30, 0 };
             int[] higherLevelGrades = { 100, 88, 77, 66, 56, 46, 37, 0 };
 
             // declare variables 
             int totalPoints = 0;
-            int point;
+            int points;
 
             for (int i = 0; i < grades.Length; i++) // loop through grades array 
             {
-               if (int.TryParse(grades[i], out point)) // validate input and convert valid input to an int, else display an error message 
-                {
+                int.TryParse(grades[i], out points); // validate input and convert valid input to an int, else display an error message 
+                
                     // loop through boundaries array 
                     for (int j = 0; j < boundaries.Length; j++)
                     {
-                        if (point >= boundaries[j])
+                        if (points >= boundaries[j]) // checks if point is greater than or equal to the current element in the boundries array (if true, executes the block)
                         {
-                            point = higherLevelGrades[j];
-                            totalPoints += point;
+                            points = higherLevelGrades[j]; // reassign point to the current element in the higherLevelGrades array 
+                            totalPoints += points; // add current points to total points  
                             break; // break out of loop after block is executed 
                         }
-                    }
-                }
-               else
-                {
-                    // display error message 
-                    Console.WriteLine($"Oops, {grades[i]} is not a valid input");
-                }  
+                    }  
             }
             return totalPoints;
         }
