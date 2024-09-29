@@ -2,84 +2,26 @@
 * Name: Garry Ledwith
 * Date: 23/09/24
 * Description: Lab 2 
- Q3 
-
-Create two arrays which hold the grade boundaries and higher level point. 
-The grade boundaries are the marks that are on the boundary between two grades
-such as 90, 80, 70 etc. 
-Amend the program so that it makes use of the arrays in calculating points. 
-This program should read 
-from a file but should output total points to the screen and not amend the file.
-
-----------------------------------
-# UNDERSTAND THE PROBLEM:
-- Input:
-
-- Output:
-
-Rules / Requirements:
-- Explicit requirements
-  - Create two arrays which hold the grade boundaries and higher level point. 
-  - Array 1: grade boundries 
-  - Array 2: higher level points 
-  - This program should read from a file 
-  - use the arrays in calculating points. 
-  - output total points to the screen 
-  - DO NOT amend not the file.
-
-
-- Implicit requirements
- - create a txt file 
- - use try catch block to handle errors 
- - 
-
-Clarifying Questions:
-what are grade boundaries? 
-  - The grade boundaries are the marks that are on the boundary between two grades
-such as 90, 80, 70 etc. 
-
-  // file path 
-    ..\..\..\grades.txt
-
-    
- // Methods 
-Calculate Totals method 
-- read results from file 
-- store results in a varible 
-- loop through grade boundries array 
-  - if result is greater than 90 then return the index of that element in the array and use the index to#
-find and return the element at the same index in higherGraders array 
-    and add it to a running total 
-    else if result is less than 90 and greater than 80 follow the same logic as above 
-   - continue until file is completed 
-
-boundaries array 
-
-// Display results method 
-output results running total from calculate totals method above 
-
+ Q2
+make use of a foreach loop in the previous exercise
 */
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Q2
+namespace Q1
 {
     internal class Program
     {
-          
-       
         static void Main(string[] args)
         {
-
-
             // file path
             string filePath = "../../../grades.txt";
-
 
             try // try catch block for handling exceptions 
             {
@@ -88,60 +30,75 @@ namespace Q2
                     throw new FileNotFoundException($"The file {filePath} could not be found");
                 }
 
-                // read all contents from file and add them to an array 
-                string[] studentGrades = File.ReadAllLines(filePath); 
+                // calculate total pooints  
+                int total = CalculateTotalPoints(filePath);
 
-                // looping through studentGrades for testing 
-                foreach (string studentGrade in studentGrades)
-                {
-                    Console.WriteLine(studentGrade);
-                }
+                // display contents of file 
+                DisplayFile(filePath);
 
-                // calculate total points 
-                CalculateTotalPoints(studentGrades);
-
+                // append to a file 
+                AppendtotalToFile(filePath, total);
 
             }
             catch (FileNotFoundException e)
             {
                 Console.WriteLine(e.Message);
             }
-        } // end of main 
-
+        }
         // Methods 
         // calculate total points 
-        static int CalculateTotalPoints(string[] grades)
+        static int CalculateTotalPoints(string filePath)
         {
-            // Arrays to store data 
-            int[] boundaries = { 90, 80, 70, 60, 50, 40, 30, 0 };
-            int[] higherLevelGrades = { 100, 88, 77, 66, 56, 46, 37, 0 };
-
-            // declare variables 
-            int totalPoints = 0;
-            int point = 0;
-
-            for (int i = 0; i < grades.Length; i++) // loop through grades array 
+            using (StreamReader sr = new StreamReader(filePath)) // instantitae a new StreamReader object 
             {
-                point = Convert.ToInt32(grades[i]); // convert point into an int 
+                string lineIn = "";
+                int runningTotal = 0;
 
-                // loop through boundaries array 
-                for (int j = 0; j < boundaries.Length; i++)
+                while ((lineIn = sr.ReadLine()) != null)
                 {
-                    if (point >= boundaries[j])
+                    string[] fields = lineIn.Split(','); // split each element with a ',' 
+
+                    foreach (string field in fields) // foreach loop (Question 2) 
                     {
-                        point = higherLevelGrades[j];
+
+                        runningTotal += Convert.ToInt32(field); // convert input into an int and add it to runningTotal 
                     }
                 }
-                        
+                return runningTotal;
+            }
+        }
+
+        // append total to file 
+        static void AppendtotalToFile(string filePath, int total)
+        {
+            using (StreamWriter sw = File.AppendText(filePath))
+            {
+                sw.WriteLine(total);
 
             }
-
-            Console.WriteLine($"total points: {totalPoints}");
-            return totalPoints;
         }
-        
+        // Display store performance report 
 
-        
+        static void DisplayFile(string filePath)
+        {
+            using (StreamReader sr = new StreamReader(filePath)) // instantitae a new StreamReader object 
+            {
+                string lineIn = "";
+
+
+                while ((lineIn = sr.ReadLine()) != null)
+                {
+                    string[] fields = lineIn.Split(',');
+
+                    for (int i = 0; i < fields.Length; i++)
+                    {
+                        Console.WriteLine(fields[i]);
+                    }
+                }
+
+            }
+        }
+
 
     }
 }
